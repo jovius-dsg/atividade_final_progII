@@ -74,7 +74,7 @@ public class CRUD {
                         JOptionPane.showMessageDialog(null, "Conta deletada!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
                         break;
                     } else {
-                        JOptionPane.showMessageDialog(null, "Operação Cancelada", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+                        JOptionPane.showMessageDialog(null, "Operação Cancelada.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
                     }
                 } else {
                     if (c == (listaContas.size() - 1)) {

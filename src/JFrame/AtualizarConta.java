@@ -42,7 +42,6 @@ public class AtualizarConta extends javax.swing.JFrame {
         btnListar = new javax.swing.JButton();
         btnSair = new javax.swing.JButton();
         btnAtualizar = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -151,21 +150,6 @@ public class AtualizarConta extends javax.swing.JFrame {
         });
         getContentPane().add(btnAtualizar);
         btnAtualizar.setBounds(270, 300, 90, 22);
-
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/JFrame/x5-clear-list.png"))); // NOI18N
-        jButton2.setPreferredSize(new java.awt.Dimension(28, 38));
-        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton2MouseClicked(evt);
-            }
-        });
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-        getContentPane().add(jButton2);
-        jButton2.setBounds(80, 70, 30, 30);
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/JFrame/x1.png"))); // NOI18N
         jLabel2.setText("jLabel2");
@@ -362,19 +346,6 @@ public class AtualizarConta extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
-        // TODO add your handling code here:
-        DefaultTableModel modelo = (DefaultTableModel) tbContas.getModel();
-        modelo.setNumRows(0);
-        ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\OneDrive\\Documentos\\NetBeansProjects\\Sistema-Bancario-Simples-Java-main\\src\\JFrame\\mensage-icon.png");
-
-        JOptionPane.showMessageDialog(this, "Tabela limpa!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
-    }//GEN-LAST:event_jButton2MouseClicked
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
-
     /**
      * @param args the command line arguments
      */
@@ -423,7 +394,6 @@ public class AtualizarConta extends javax.swing.JFrame {
     private javax.swing.JButton btnListar;
     private javax.swing.JButton btnSair;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;

@@ -11,6 +11,7 @@ public class AcessarConta extends javax.swing.JFrame {
     Conta conta;
     String dados;
     static double valor = 0.0;
+    static boolean operacao = false;
 
     /**
      * Creates new form AcessarConta
@@ -146,10 +147,21 @@ public class AcessarConta extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\OneDrive\\Documentos\\NetBeansProjects\\Sistema-Bancario-Simples-Java-main\\src\\JFrame\\mensage-icon.png");
         lerValor();
-        conta.sacar(valor);
-        dados = conta.imprimirInfos();
-        exibicaoDados.setText(dados);
+        if (operacao == true) {
+            operacao = false;
+            return;
+        }
+
+        if (conta.getSaldo() >= valor) {
+            conta.sacar(valor);
+            dados = conta.imprimirInfos();
+            exibicaoDados.setText(dados);
+        } else {
+            JOptionPane.showMessageDialog(this, "Saldo insuficiente para realizar o saque.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+        }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -163,31 +175,64 @@ public class AcessarConta extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
+        ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\OneDrive\\Documentos\\NetBeansProjects\\Sistema-Bancario-Simples-Java-main\\src\\JFrame\\mensage-icon.png");
         String c;
         int numero = 0;
         boolean repete;
-        ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\OneDrive\\Documentos\\NetBeansProjects\\Sistema-Bancario-Simples-Java-main\\src\\JFrame\\mensage-icon.png");
-        /*essa estrutura de repetição impede que o programa leia uma letra
-          ou um número que não seja inteiro
-         */
+
         do {
             try {
                 c = JOptionPane.showInputDialog(null, "Digite o número da conta para transferir: ");
+                if (c == null) {
+                    JOptionPane.showMessageDialog(null, "Operação cancelada.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+                    return;
+                }
                 numero = Integer.parseInt(c);
                 repete = false;
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Digite um número válido!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
                 repete = true;
             }
         } while (repete);
+
+        // Verifica se a conta destino existe
         Conta contaTransferir = CRUD.acessarContaPorNumero(numero);
-        lerValor();
-        if (contaTransferir != null) {
-            conta.transferir(valor, contaTransferir);
-            dados = conta.imprimirInfos();
-            exibicaoDados.setText(dados);
-        } else {
-            JOptionPane.showMessageDialog(null, "A conta destino não existe", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+        if (contaTransferir == null) {
+            JOptionPane.showMessageDialog(null, "A conta destino não existe.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+            return;
+        }
+
+        boolean transferenciaConcluida = false;
+
+        while (!transferenciaConcluida) {
+            try {
+                String valorInput = JOptionPane.showInputDialog(null, "Digite o valor a ser transferido:");
+                if (valorInput == null) {
+                    JOptionPane.showMessageDialog(null, "Operação cancelada.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+                    return;
+                }
+                double valor = Double.parseDouble(valorInput);
+                if (valor <= 0) {
+                    throw new IllegalArgumentException("O valor deve ser maior que zero.");
+                }
+
+                // Verifica se há saldo suficiente
+                if (conta.getSaldo() < valor) {
+                    JOptionPane.showMessageDialog(null, "Saldo insuficiente. Tente outro valor.", "Erro", JOptionPane.ERROR_MESSAGE, icon);
+                    continue;
+                }
+
+                // Realiza a transferência
+                conta.transferir(valor, contaTransferir);
+                String dados = conta.imprimirInfos();
+                exibicaoDados.setText(dados);
+                JOptionPane.showMessageDialog(null, "Transferência realizada com sucesso!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+                transferenciaConcluida = true;
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Digite um valor numérico válido!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+            } catch (IllegalArgumentException e) {
+                JOptionPane.showMessageDialog(null, e.getMessage(), "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+            }
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -236,6 +281,13 @@ public class AcessarConta extends javax.swing.JFrame {
         do {
             try {
                 numero = JOptionPane.showInputDialog(null, "Informe o Valor: ");
+
+                if (numero == null) {
+                    JOptionPane.showMessageDialog(null, "Operação cancelada.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+                    operacao = true;
+                    return;
+                }
+
                 numero = numero.replace(",", ".");
                 valor = Double.parseDouble(numero);
                 repete = false;

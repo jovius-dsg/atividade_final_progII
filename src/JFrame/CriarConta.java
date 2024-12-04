@@ -130,8 +130,12 @@ public class CriarConta extends javax.swing.JFrame {
 
         if (cpf.trim().replace(".", "").replace("-", "").length() != 11) {
 
-            JOptionPane.showMessageDialog(null, "Digite um CPF válido", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+            JOptionPane.showMessageDialog(null, "Digite um CPF válido.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
 
+        } else if (nome.trim().length() < 3) {
+            
+            JOptionPane.showMessageDialog(null, "Digite um nome com pelo menos 3 caracteres.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+            
         } else {
             Cliente cliente = new Cliente(nome, cpf);
             CRUD.criarConta(cliente, Tipo);

@@ -143,6 +143,12 @@ public class Menu extends javax.swing.JFrame {
         do {
             try {
                 c = JOptionPane.showInputDialog(null, "Digite o número da conta: ");
+                
+                if (c == null) {
+                JOptionPane.showMessageDialog(null, "Operação cancelada.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+                return;
+                }
+                
                 numero = Integer.parseInt(c);
                 repete = false;
             } catch (Exception e) {

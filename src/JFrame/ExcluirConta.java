@@ -1,6 +1,7 @@
 package JFrame;
 
 import Crud.CRUD;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 public class ExcluirConta extends javax.swing.JFrame {
@@ -94,11 +95,21 @@ public class ExcluirConta extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
-        // TODO add your handling code here:
-        CRUD crud = new CRUD();
+        ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\Documents\\NetBeansProjects\\GNBVersaoFinal\\src\\JFrame\\mensage-icon.png");
 
+        if (numero.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Por favor, digite o número da conta.", "GNB", JOptionPane.WARNING_MESSAGE, icon);
+            return;
+        }
+        
         int numeroConta = Integer.parseInt(numero.getText());
-        CRUD.deletarContaPorNumero(numeroConta);
+        
+        if (numero != null) {
+            CRUD.deletarContaPorNumero(numeroConta);
+        } else {
+            JOptionPane.showMessageDialog(null, "Operação cancelada.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+        }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void numeroKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_numeroKeyPressed
