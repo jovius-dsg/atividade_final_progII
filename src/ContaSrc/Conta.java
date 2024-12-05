@@ -92,7 +92,11 @@ public abstract class Conta implements IConta {
     public Cliente getCliente() {
         return cliente;
     }
-
+    
+    public String nome() {
+        return this.cliente.getNome();
+    }
+    
     public String imprimirInfos() {
         return "Titular: " + this.cliente.getNome()
                 + "\nCPF: " + this.cliente.getCPF()
@@ -105,9 +109,14 @@ public abstract class Conta implements IConta {
     public String imprimirHistorico() {
         return "\n===================" + historico + "\n===================";
     }
-
+    
+    @Override
+    public abstract void criarPdf(String conteudo);
+            
     @Override
     public abstract void imprimirExtrato();
+    
+  ;
 
     // Classe interna para movimentação
     private static class Movimentacao {
