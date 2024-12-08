@@ -12,17 +12,17 @@
       "nome": "1111",
       "CPF": "111.111.111-11"
     },
-    "historico": "\n08/12/2024: Depósito de R$10.0\n08/12/2024: Saque de R$2.3\n08/12/2024: Depósito de R$10.0\n08/12/2024: Saque de R$2.3\n08/12/2024: Depósito de R$10.0\n08/12/2024: Saque de R$2.3",
+    "historico": "\n08/12/2024: Depósito de R$10.0\n08/12/2024: Saque de R$2.3\n08/12/2024: Depósito de R$10.0\n08/12/2024: Saque de R$2.3\n08/12/2024: Depósito de R$10.0\n08/12/2024: Saque de R$2.3\n08/12/2024: Depósito de R$10.0\n08/12/2024: Saque de R$2.3",
     "movimentacoes": [
       {
         "tipo": "Depósito",
         "valor": 10.0,
-        "data": "Dec 8, 2024, 5:46:52 AM"
+        "data": "Dec 8, 2024, 3:47:58 PM"
       },
       {
         "tipo": "Saque",
         "valor": 2.3,
-        "data": "Dec 8, 2024, 5:46:52 AM"
+        "data": "Dec 8, 2024, 3:47:58 PM"
       }
     ]
   },
