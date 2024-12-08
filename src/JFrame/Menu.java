@@ -5,6 +5,9 @@ import ContaSrc.Conta;
 import ContaSrc.ContaCorrente;
 import ContaSrc.ContaPoupanca;
 import Crud.CRUD;
+import static Crud.CRUD.carregarContasJson;
+import static Crud.CRUD.formatarTiposContasNoJson;
+import static Crud.CRUD.garantirArquivoExistente;
 import java.text.ParseException;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -16,6 +19,14 @@ public class Menu extends javax.swing.JFrame {
      */
     public Menu() {
         initComponents();
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+        @Override
+        public void windowClosing(java.awt.event.WindowEvent e) {
+            CRUD.salvarContasJson(); // Salva os dados antes de fechar
+            JOptionPane.showMessageDialog(null, "Os dados foram salvos com sucesso.", "GNB", JOptionPane.INFORMATION_MESSAGE);
+            System.exit(0); // Encerra o programa
+        }
+    });
     }
 
     /**
@@ -185,48 +196,28 @@ public class Menu extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        Cliente cliente = new Cliente();
-        Cliente cliente2 = new Cliente();
-        Cliente cliente3 = new Cliente();
+//        Cliente cliente = new Cliente();
+//        Cliente cliente2 = new Cliente();
+//        Cliente cliente3 = new Cliente();
+//
+//        cliente.setNome("Venilton");
+//        cliente.setCPF("123.456.778-99");
+//        Conta conta1 = new ContaCorrente(cliente);
+//
+//        cliente2.setNome("José");
+//        cliente2.setCPF("987.654.321-32");
+//        Conta conta2 = new ContaPoupanca(cliente2);
+//
+//        cliente3.setNome("Paulo");
+//        cliente3.setCPF("123.789.654-11");
+//        Conta conta3 = new ContaCorrente(cliente3);
+//
+//        CRUD.listaContas.add(conta1);
+//        CRUD.listaContas.add(conta2);
+//        CRUD.listaContas.add(conta3);;
 
-        cliente.setNome("Venilton");
-        cliente.setCPF("123.456.778-99");
-        Conta conta1 = new ContaCorrente(cliente);
-
-        cliente2.setNome("José");
-        cliente2.setCPF("987.654.321-32");
-        Conta conta2 = new ContaPoupanca(cliente2);
-
-        cliente3.setNome("Paulo");
-        cliente3.setCPF("123.789.654-11");
-        Conta conta3 = new ContaCorrente(cliente3);
-
-        CRUD.listaContas.add(conta1);
-        CRUD.listaContas.add(conta2);
-        CRUD.listaContas.add(conta3);
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
+          garantirArquivoExistente();
+          carregarContasJson();
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

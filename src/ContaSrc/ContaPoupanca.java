@@ -2,6 +2,7 @@ package ContaSrc;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.awt.Desktop;
@@ -16,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ContaPoupanca extends Conta {
-
+    
     public ContaPoupanca(Cliente cliente) {
         super(cliente);
     }
@@ -30,49 +31,51 @@ public class ContaPoupanca extends Conta {
     public void criarPdf(String conteudo) {
         String nome = super.nome();
         String dataAtual = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-        ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\OneDrive\\Documentos\\NetBeansProjects\\Sistema-Bancario-Simples-Java-main\\src\\JFrame\\mensage-icon.png");
         String caminho = "C:\\Users\\joaov\\Downloads\\Extrato_Conta_Poupanca" + "_" + nome + "_" + dataAtual + ".pdf";
+
         Document document = new Document();
         try {
             PdfWriter.getInstance(document, new FileOutputStream(caminho));
-
             document.open();
 
-            document.add(new Paragraph(conteudo));
+            // Formatação básica do PDF
+            Font tituloFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
+            Font textoFont = new Font(Font.FontFamily.HELVETICA, 12);
+
+            document.add(new Paragraph("Extrato Bancário", tituloFont));
+            document.add(new Paragraph("\n"));
+            document.add(new Paragraph(conteudo, textoFont));
 
             document.close();
 
-            JOptionPane.showMessageDialog(null, "PDF gerado com sucesso!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+            JOptionPane.showMessageDialog(null, "PDF gerado com sucesso!", "GNB", JOptionPane.INFORMATION_MESSAGE,
+                    new ImageIcon("Caminho/Para/Icone.png"));
 
-            File pdfFile = new File(caminho);
-            if (pdfFile.exists()) {
-                Desktop.getDesktop().open(pdfFile);
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(new File(caminho));
             } else {
-                JOptionPane.showMessageDialog(null, "Não foi possível encontrar o arquivo PDF.", "GNB", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "O PDF foi criado, mas não pôde ser aberto automaticamente.", "GNB",
+                        JOptionPane.WARNING_MESSAGE);
             }
 
         } catch (DocumentException | IOException e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Erro ao criar o PDF: " + e.getMessage(), "GNB", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     @Override
     public void imprimirExtrato() {
-        ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\Documents\\NetBeansProjects\\GNBVersaoFinal\\src\\JFrame\\mensage-icon.png");
-
-        String mensagem = "=== Extrato Conta Poupança ===\n"
+        String mensagem = "=== Extrato Conta Corrente ===\n"
                 + super.imprimirInfos()
                 + super.imprimirHistorico();
 
         Object[] options = {"Fechar", "Criar PDF"};
-
         int escolha = JOptionPane.showOptionDialog(null,
                 mensagem,
                 "GNB",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.INFORMATION_MESSAGE,
-                icon,
+                new ImageIcon("Caminho/Para/Icone.png"),
                 options,
                 options[0]);
 

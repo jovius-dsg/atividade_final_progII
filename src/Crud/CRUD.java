@@ -4,15 +4,160 @@ import ContaSrc.ContaPoupanca;
 import ContaSrc.Conta;
 import ContaSrc.ContaCorrente;
 import ContaSrc.Cliente;
+import ContaSrc.Conta.ContaAdapter;
+import ContaSrc.Conta.DateAdapter;
+import ContaSrc.Conta.SimpleDateFormatAdapter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+
+import javax.swing.*;
 import java.awt.HeadlessException;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 
 public class CRUD {
 
-    public static List<Conta> listaContas = new ArrayList<Conta>();
+    public static List<Conta> listaContas = new ArrayList<>();
+    private static final String CAMINHO_ARQUIVO = "src/data/contas.json";
+
+    // Método para garantir que o arquivo existe, se não, criar um arquivo vazio
+    public static void garantirArquivoExistente() {
+        File pasta = new File("src/data");
+
+        // Verifica se a pasta 'data' existe, se não, cria
+        if (!pasta.exists()) {
+            boolean pastaCriada = pasta.mkdirs();
+            if (pastaCriada) {
+                System.out.println("Pasta 'data' criada com sucesso.");
+            } else {
+                System.out.println("Erro ao criar a pasta 'data'.");
+            }
+        }
+
+        File arquivo = new File(CAMINHO_ARQUIVO);
+
+        // Verifica se o arquivo já existe
+        if (!arquivo.exists()) {
+            try {
+                // Se o arquivo não existe, cria um novo com um conteúdo inicial vazio
+                arquivo.createNewFile();
+                // Inicializa o arquivo com uma lista vazia de contas (em formato JSON)
+                try (FileWriter writer = new FileWriter(arquivo)) {
+                    writer.write("[]"); // Escreve um array JSON vazio
+                }
+                System.out.println("Arquivo 'contas.json' criado com sucesso.");
+            } catch (IOException e) {
+                System.out.println("Erro ao criar o arquivo: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Arquivo 'contas.json' já existe.");
+        }
+    }
+    
+    public static void formatarTiposContasNoJson() {
+        // Tentar ler o arquivo JSON existente
+        try (FileReader reader = new FileReader(CAMINHO_ARQUIVO)) {
+            // Ler o conteúdo do JSON como uma lista de objetos genéricos
+            JsonArray jsonArray = JsonParser.parseReader(reader).getAsJsonArray();
+
+            // Percorrer todas as contas no JSON
+            for (JsonElement element : jsonArray) {
+                JsonObject jsonObject = element.getAsJsonObject();
+
+                // Verificar o tipo da conta e alterar para "Corrente" ou "Poupança"
+                String tipo = jsonObject.get("tipo").getAsString();
+                if ("ContaCorrente".equals(tipo)) {
+                    jsonObject.addProperty("tipo", "Corrente");
+                } else if ("ContaPoupanca".equals(tipo)) {
+                    jsonObject.addProperty("tipo", "Poupança");
+                }
+            }
+
+            // Salvar o JSON modificado de volta no arquivo
+            try (FileWriter writer = new FileWriter(CAMINHO_ARQUIVO)) {
+                // Usar Gson para escrever o JSON formatado
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                gson.toJson(jsonArray, writer);
+            }
+
+        } catch (IOException | JsonSyntaxException e) {
+            // Exibe uma mensagem de erro se algo der errado
+            JOptionPane.showMessageDialog(null, "Erro ao carregar ou salvar os dados: " + e.getMessage(), "GNB", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Método para salvar as contas no arquivo JSON
+    public static void salvarContasJson() {
+        // Cria o Gson com adaptadores personalizados
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Conta.class, new ContaAdapter())
+                .registerTypeAdapter(SimpleDateFormat.class, new SimpleDateFormatAdapter())
+                .setPrettyPrinting() // Para saída JSON formatada
+                .create();
+
+        try (FileWriter writer = new FileWriter(CAMINHO_ARQUIVO)) {
+            gson.toJson(listaContas, writer);  // O Gson irá salvar o tipo corretamente
+        } catch (IOException e) {
+            // Exibe uma mensagem de erro caso ocorra um problema na gravação
+            JOptionPane.showMessageDialog(null, "Erro ao salvar os dados: " + e.getMessage(), "GNB", JOptionPane.ERROR_MESSAGE);
+        }
+
+        // Imprimir o JSON salvo para verificação
+        String jsonSalvo = gson.toJson(listaContas);
+        if (jsonSalvo != null) {
+            System.out.println("JSON salvo:\n" + jsonSalvo);
+        } else {
+            System.out.println("Nenhuma conta salva.");
+        }
+        
+        formatarTiposContasNoJson();
+    }
+
+    public static void carregarContasJson() {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, new DateAdapter())
+                .registerTypeAdapter(Conta.class, new ContaAdapter()) // O adaptador de Conta já cuida da conversão do tipo
+                .create();
+
+        Type tipoListaContas = new TypeToken<ArrayList<Conta>>() {
+        }.getType();
+
+        try (FileReader reader = new FileReader(CAMINHO_ARQUIVO)) {
+            listaContas = gson.fromJson(reader, tipoListaContas);
+            if (listaContas == null) {
+                listaContas = new ArrayList<>();
+            }
+        } catch (JsonSyntaxException e) {
+            // Caso o JSON esteja mal formatado
+            JOptionPane.showMessageDialog(null, "Erro no formato do arquivo JSON: " + e.getMessage(), "GNB", JOptionPane.ERROR_MESSAGE);
+            listaContas = new ArrayList<>();
+        } catch (IOException e) {
+            // Caso o arquivo não possa ser lido
+            JOptionPane.showMessageDialog(null, "Erro ao carregar os dados: " + e.getMessage(), "GNB", JOptionPane.ERROR_MESSAGE);
+            listaContas = new ArrayList<>();
+        }
+    }
+
+    // Método para mostrar mensagens de erro centralizado
+    private static void mostrarMensagemErro(String mensagem) {
+        // Caminho relativo à pasta de recursos
+        ImageIcon icon = new ImageIcon(CRUD.class.getResource("/JFrame/mensage-icon.png"));
+        JOptionPane.showMessageDialog(null, mensagem, "GNB", JOptionPane.ERROR_MESSAGE, icon);
+    }
 
     public static boolean criarConta(Cliente cliente, String tipo) {
         ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\OneDrive\\Documentos\\NetBeansProjects\\Sistema-Bancario-Simples-Java-main\\src\\JFrame\\mensage-icon.png");
@@ -23,35 +168,31 @@ public class CRUD {
             String cpfExistente;
             String tipoExistente;
 
-            /*esse laço verifica se já existe uma conta com o mesmo CPF e do mesmo tipo
-              se existir, ele avisa e exibe os dados da conta existente
-              se não existir, ele cria a conta e exibe os dados da nova conta  
-             */
+            // Verifica se o cliente já tem uma conta do tipo especificado
             for (Conta contaExistente : listaContas) {
                 clienteExistente = contaExistente.getCliente();
                 cpfExistente = clienteExistente.getCPF();
                 tipoExistente = contaExistente.tipo();
-                if (cpfExistente.equals(cliente.getCPF())
-                        && tipoExistente.equals(tipo)) {
+                if (cpfExistente.equals(cliente.getCPF()) && tipoExistente.equals(tipo)) {
                     JOptionPane.showMessageDialog(null, "Esse Cliente já possui conta " + tipo + " no Banco!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
                     JOptionPane.showMessageDialog(null, contaExistente.imprimirInfos(), "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
                     return false;
                 }
             }
 
-            //aqui ele verifica que tipo de conta deve ser criada, Corrente ou Poupança
+            // Criação da conta com o tipo
             if ("Corrente".equals(tipo)) {
-                conta = new ContaCorrente(cliente);
+                conta = new ContaCorrente(cliente);  // Atribui automaticamente o tipo "Corrente"
             } else {
-                conta = new ContaPoupanca(cliente);
+                conta = new ContaPoupanca(cliente);  // Atribui automaticamente o tipo "Poupança"
             }
 
             listaContas.add(conta);
             JOptionPane.showMessageDialog(null, conta.imprimirInfos(), "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+            salvarContasJson(); // Salva a lista após adicionar uma conta
 
         } catch (Exception e) {
             return false;
-
         }
 
         return true;
@@ -61,10 +202,6 @@ public class CRUD {
         ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\OneDrive\\Documentos\\NetBeansProjects\\Sistema-Bancario-Simples-Java-main\\src\\JFrame\\mensage-icon.png");
 
         try {
-            /*nesse laço ele procura a conta que deve ser deletada
-              e, caso encontre, exibe os dados da conta e pede confirmação ao usuário
-              caso não encontre, informa que a conta não foi encontrada
-             */
             for (Conta conta : listaContas) {
                 int c = listaContas.indexOf(conta);
                 if (conta.getNumero() == numero) {
@@ -72,6 +209,7 @@ public class CRUD {
                     if (escolha == 0) {
                         listaContas.remove(conta);
                         JOptionPane.showMessageDialog(null, "Conta deletada!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+                        salvarContasJson(); // Salva a lista após remover uma conta
                         break;
                     } else {
                         JOptionPane.showMessageDialog(null, "Operação Cancelada.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
@@ -81,12 +219,10 @@ public class CRUD {
                         JOptionPane.showMessageDialog(null, "Conta não encontrada!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
                     }
                 }
-
             }
 
         } catch (Exception e) {
             return false;
-
         }
 
         return false;
@@ -96,10 +232,6 @@ public class CRUD {
         ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\OneDrive\\Documentos\\NetBeansProjects\\Sistema-Bancario-Simples-Java-main\\src\\JFrame\\mensage-icon.png");
 
         try {
-            /*nesse laço ele procura a conta que possui o mesmo número informado
-              caso encontre, ele retorna a conta
-              caso não encontre, ele informa que a conta não foi encontrada
-             */
             for (Conta conta : listaContas) {
                 int c = listaContas.indexOf(conta);
                 if (conta.getNumero() == numero) {
@@ -109,20 +241,16 @@ public class CRUD {
                         JOptionPane.showMessageDialog(null, "Conta não encontrada!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
                     }
                 }
-
             }
 
         } catch (HeadlessException e) {
             return null;
-
         }
         return null;
     }
 
     public static List<Conta> listarContas() {
-
         return listaContas;
-
     }
 
     public static boolean alterarConta(int numero) {
@@ -131,68 +259,55 @@ public class CRUD {
         try {
             for (Conta conta : listaContas) {
                 if (conta.getNumero() == numero) {
-                    // Exibe os dados atuais
-                    JOptionPane.showMessageDialog(null, "Dados atuais da conta:\n" + conta.imprimirInfos(), "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+                    // Exibe dados atuais
+                    mostrarMensagemErro("Dados atuais da conta:\n" + conta.imprimirInfos());
 
-                    // Solicita novos dados
+                    // Entrada de dados do cliente
                     String novoNome = JOptionPane.showInputDialog(null, "Digite o novo nome do cliente:", conta.getCliente().getNome());
                     if (novoNome == null || novoNome.trim().isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Nome inválido.", "GNB", JOptionPane.ERROR_MESSAGE, icon);
+                        mostrarMensagemErro("Nome inválido.");
                         return false;
                     }
 
                     String novoCPF = JOptionPane.showInputDialog(null, "Digite o novo CPF do cliente:", conta.getCliente().getCPF());
 
-                    String cpfLimpo = novoCPF.replaceAll("[^0-9]", "");
-
-                    if (cpfLimpo.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "CPF não pode estar vazio.", "GNB", JOptionPane.ERROR_MESSAGE, icon);
+                    // Validações CPF
+                    if (novoCPF.replaceAll("[^0-9]", "").length() != 11) {
+                        mostrarMensagemErro("CPF inválido. Deve conter 11 dígitos numéricos.");
                         return false;
                     }
 
-                    if (cpfLimpo.length() != 11) {
-                        JOptionPane.showMessageDialog(null, "CPF inválido. Deve conter exatamente 11 dígitos.", "GNB", JOptionPane.ERROR_MESSAGE, icon);
-                        return false;
-                    }
-
-                    if (!cpfLimpo.matches("\\d{11}")) {
-                        JOptionPane.showMessageDialog(null, "CPF inválido. Deve conter apenas números.", "GNB", JOptionPane.ERROR_MESSAGE, icon);
-                        return false;
-                    }
-
-                    String novoTipo = JOptionPane.showInputDialog(null, "Digite o novo tipo da conta (Corrente ou Poupança):", conta.tipo());
-                    if (novoTipo == null || (!novoTipo.equalsIgnoreCase("Corrente") && !novoTipo.equalsIgnoreCase("Poupança"))) {
-                        JOptionPane.showMessageDialog(null, "Tipo inválido. Escolha 'Corrente' ou 'Poupança'.", "GNB", JOptionPane.ERROR_MESSAGE, icon);
-                        return false;
-                    }
-
-                    // Atualiza os dados do cliente
+                    // Atualiza cliente
                     conta.getCliente().setNome(novoNome);
                     conta.getCliente().setCPF(novoCPF);
 
-                    // Atualiza ou converte o tipo da conta
-                    if (!novoTipo.equalsIgnoreCase(conta.tipo())) {
-                        Cliente clienteAtualizado = conta.getCliente();
-                        listaContas.remove(conta);
+                    // Atualização do tipo da conta
+                    String novoTipo = JOptionPane.showInputDialog(null, "Digite o novo tipo da conta (Corrente ou Poupança):", conta.tipo());
+                    if (!"Corrente".equalsIgnoreCase(novoTipo) && !"Poupança".equalsIgnoreCase(novoTipo)) {
+                        mostrarMensagemErro("Tipo inválido. Escolha 'Corrente' ou 'Poupança'.");
+                        return false;
+                    }
 
-                        if (novoTipo.equalsIgnoreCase("Corrente")) {
-                            listaContas.add(new ContaCorrente(clienteAtualizado));
-                        } else if (novoTipo.equalsIgnoreCase("Poupança")) {
-                            listaContas.add(new ContaPoupanca(clienteAtualizado));
+                    if (!novoTipo.equalsIgnoreCase(conta.tipo())) {
+                        // Aqui podemos apenas alterar o tipo, sem remover a conta
+                        if ("Corrente".equalsIgnoreCase(novoTipo)) {
+                            conta = new ContaCorrente(conta.getCliente());
+                        } else {
+                            conta = new ContaPoupanca(conta.getCliente());
                         }
                     }
 
-                    JOptionPane.showMessageDialog(null, "Conta alterada com sucesso!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+                    salvarContasJson(); // Salva a lista após a alteração
+                    JOptionPane.showMessageDialog(null, "Conta alterada com sucesso!", "GNB", JOptionPane.INFORMATION_MESSAGE);
                     return true;
                 }
             }
 
-            // Se a conta não for encontrada
-            JOptionPane.showMessageDialog(null, "Conta não encontrada!", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+            mostrarMensagemErro("Conta não encontrada!");
             return false;
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro ao alterar a conta: " + e.getMessage(), "GNB", JOptionPane.ERROR_MESSAGE, icon);
+            mostrarMensagemErro("Erro ao alterar a conta: " + e.getMessage());
             return false;
         }
     }

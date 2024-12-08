@@ -4,6 +4,15 @@ import ContaSrc.Cliente;
 import ContaSrc.Conta;
 import Crud.CRUD;
 import static Crud.CRUD.listaContas;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.awt.Desktop;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.ImageIcon;
@@ -14,6 +23,7 @@ import javax.swing.*;
 import javax.swing.text.MaskFormatter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class AtualizarConta extends javax.swing.JFrame {
 
@@ -287,9 +297,8 @@ public class AtualizarConta extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAtualizarMousePressed
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        // TODO add your handling code here:
         ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\Documents\\NetBeansProjects\\GNBVersaoFinal\\src\\JFrame\\mensage-icon.png");
-        
+
         // Pergunta o número de clientes a ser listado
         int n = 0;
         try {
@@ -303,11 +312,10 @@ public class AtualizarConta extends javax.swing.JFrame {
             return;
         }
 
-        // Obtém todas as contas sem filtrar por data
+        // Obtém os dados
         List<Conta> maioresSaldos = listarClientesMaiorSaldo(n);  // Lista os n clientes com maiores saldos
         List<Conta> maioresMovimentacoes = listarClientesMaisMovimentacoes(n);  // Lista os n clientes com mais movimentações
 
-        // Se as listas estiverem vazias
         if (maioresSaldos.isEmpty() && maioresMovimentacoes.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Nenhum dado encontrado.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
             return;
@@ -315,9 +323,8 @@ public class AtualizarConta extends javax.swing.JFrame {
 
         // Cria o relatório
         StringBuilder relatorio = new StringBuilder();
-        relatorio.append("Relatório:\n");
+        relatorio.append("Relatório de Clientes:\n");
 
-        // Exibe os clientes com maior saldo
         if (!maioresSaldos.isEmpty()) {
             relatorio.append("\nClientes com maiores saldos:\n");
             for (Conta conta : maioresSaldos) {
@@ -327,7 +334,6 @@ public class AtualizarConta extends javax.swing.JFrame {
             relatorio.append("\nNenhum cliente com maior saldo encontrado.\n");
         }
 
-        // Exibe os clientes com mais movimentações
         if (!maioresMovimentacoes.isEmpty()) {
             relatorio.append("\nClientes com mais movimentações:\n");
             for (Conta conta : maioresMovimentacoes) {
@@ -337,9 +343,54 @@ public class AtualizarConta extends javax.swing.JFrame {
             relatorio.append("\nNenhum cliente com maior movimentação encontrado.\n");
         }
 
-        // Exibe o relatório
-        JOptionPane.showMessageDialog(this, relatorio.toString(), "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+        // Opção de gerar o PDF
+        Object[] options = {"Fechar", "Criar PDF"};
+        int escolha = JOptionPane.showOptionDialog(this,
+                relatorio.toString(),
+                "GNB",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                icon,
+                options,
+                options[0]);
 
+        if (escolha == 1) {
+            gerarPdfRelatorio(relatorio.toString());
+        }
+    }
+
+    private void gerarPdfRelatorio(String conteudo) {
+        String dataAtual = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+        String caminho = "C:\\Users\\joaov\\Downloads\\Relatorio_Clientes_" + dataAtual + ".pdf";
+
+        Document document = new Document();
+        try {
+            PdfWriter.getInstance(document, new FileOutputStream(caminho));
+            document.open();
+
+            // Formatação básica
+            Font tituloFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
+            Font textoFont = new Font(Font.FontFamily.HELVETICA, 12);
+
+            document.add(new Paragraph("Relatório de Clientes", tituloFont));
+            document.add(new Paragraph("\n"));
+            document.add(new Paragraph(conteudo, textoFont));
+
+            document.close();
+
+            JOptionPane.showMessageDialog(null, "PDF gerado com sucesso!", "GNB", JOptionPane.INFORMATION_MESSAGE,
+                    new ImageIcon("Caminho/Para/Icone.png"));
+
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(new File(caminho));
+            } else {
+                JOptionPane.showMessageDialog(null, "O PDF foi criado, mas não pôde ser aberto automaticamente.", "GNB",
+                        JOptionPane.WARNING_MESSAGE);
+            }
+
+        } catch (DocumentException | IOException e) {
+            JOptionPane.showMessageDialog(null, "Erro ao criar o PDF: " + e.getMessage(), "GNB", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton1MouseClicked
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed

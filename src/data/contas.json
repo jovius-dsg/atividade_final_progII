@@ -1,0 +1,59 @@
+[
+  {
+    "taxaDeSaque": 0.3,
+    "taxaDeTransferencia": 0.87,
+    "LIMITE": 5000.0,
+    "formatoData": "dd/MM/yyyy",
+    "agencia": 1,
+    "numero": 1,
+    "saldo": 7.7,
+    "tipo": "Corrente",
+    "cliente": {
+      "nome": "1111",
+      "CPF": "111.111.111-11"
+    },
+    "historico": "\n08/12/2024: Depósito de R$10.0\n08/12/2024: Saque de R$2.3\n08/12/2024: Depósito de R$10.0\n08/12/2024: Saque de R$2.3\n08/12/2024: Depósito de R$10.0\n08/12/2024: Saque de R$2.3",
+    "movimentacoes": [
+      {
+        "tipo": "Depósito",
+        "valor": 10.0,
+        "data": "Dec 8, 2024, 5:46:52 AM"
+      },
+      {
+        "tipo": "Saque",
+        "valor": 2.3,
+        "data": "Dec 8, 2024, 5:46:52 AM"
+      }
+    ]
+  },
+  {
+    "LIMITE": 5000.0,
+    "formatoData": "dd/MM/yyyy",
+    "agencia": 1,
+    "numero": 2,
+    "saldo": 0.0,
+    "tipo": "Poupança",
+    "cliente": {
+      "nome": "João Vinicius",
+      "CPF": "333.333.333-33"
+    },
+    "historico": "",
+    "movimentacoes": []
+  },
+  {
+    "taxaDeSaque": 0.3,
+    "taxaDeTransferencia": 0.87,
+    "LIMITE": 5000.0,
+    "formatoData": "dd/MM/yyyy",
+    "agencia": 1,
+    "numero": 3,
+    "saldo": 0.0,
+    "tipo": "Corrente",
+    "cliente": {
+      "nome": "Júlio Sampaio",
+      "CPF": "999.999.999-99"
+    },
+    "historico": "",
+    "movimentacoes": []
+  }
+]
