@@ -7,8 +7,8 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="GNBVersaoFinal_ProgII" default="default" basedir=".">
-    <description>Builds, tests, and runs the project GNBVersaoFinal_ProgII.</description>
+<project name="GNB_1.0.0.0" default="default" basedir=".">
+    <description>Builds, tests, and runs the project GNB_1.0.0.0.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -58,7 +58,7 @@
 
     An example of overriding the target for project execution could look like this:
 
-        <target name="run" depends="GNBVersaoFinal_ProgII-impl.jar">
+        <target name="run" depends="GNB_1.0.0.0-impl.jar">
             <exec dir="bin" executable="launcher.exe">
                 <arg file="${dist.jar}"/>
             </exec>

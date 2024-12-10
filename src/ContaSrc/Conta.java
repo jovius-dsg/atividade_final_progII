@@ -14,7 +14,7 @@ public abstract class Conta implements IConta {
     private static final int AGENCIA_PADRAO = 1;
     private final double LIMITE = 5000;
     private static int SEQUENCIAL = 1;
-    private final SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy");
+    private final SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     private final int agencia;
     private final int numero;
@@ -51,9 +51,14 @@ public abstract class Conta implements IConta {
         if (saldo < valor || valor > LIMITE || contaDestino.getNumero() == this.numero) {
             throw new RuntimeException("Operação inválida.");
         }
-        this.sacar(valor);
-        contaDestino.depositar(valor);
-        registrarMovimentacao("Transferência", valor);
+
+        // Atualizar os saldos diretamente
+        saldo -= valor;
+        contaDestino.saldo += valor;
+
+        // Registrar a transferência apenas uma vez
+        registrarMovimentacao(String.format("Transferência para conta %d", contaDestino.getNumero()), valor);
+        contaDestino.registrarMovimentacao(String.format("Transferência recebida de conta %d", this.numero), valor);
     }
 
     @Override
@@ -67,10 +72,20 @@ public abstract class Conta implements IConta {
         return this.getClass().getSimpleName();
     }
 
-    private void registrarMovimentacao(String tipo, double valor) {
+    public void registrarMovimentacao(String tipo, double valor, boolean restaurando) {
         Date data = new Date();
         movimentacoes.add(new Movimentacao(tipo, valor, data));
-        historico += "\n" + formatoData.format(data) + ": " + tipo + " de R$" + valor;
+
+        if (!restaurando) {
+            historico += "\n" + formatoData.format(data) + ": " + tipo + " de R$" + valor;
+        }
+    }
+
+    // Sobrecarga para operações normais
+    public void registrarMovimentacao(String tipo, double valor) {
+        Date data = new Date();
+        movimentacoes.add(new Movimentacao(tipo, valor, data));
+        historico += String.format("\n%s: %s de R$%.2f", formatoData.format(data), tipo, valor);
     }
 
     public boolean isWithinPeriod(String inicio, String fim) {
@@ -147,10 +162,9 @@ public abstract class Conta implements IConta {
         }
     }
 
-    // Adaptador para serializar e desserializar a data
     public static class DateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
-        private final SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy");
+        private final SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", java.util.Locale.forLanguageTag("pt-BR"));
 
         @Override
         public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
@@ -161,8 +175,8 @@ public abstract class Conta implements IConta {
         public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             try {
                 return formatoData.parse(json.getAsString());
-            } catch (Exception e) {
-                throw new JsonParseException("Erro ao deserializar a data", e);
+            } catch (ParseException e) {
+                throw new JsonParseException("Erro ao deserializar a data: o formato esperado é 'dd/MM/yyyy HH:mm:ss'. Data fornecida: " + json.getAsString(), e);
             }
         }
     }
@@ -185,87 +199,83 @@ public abstract class Conta implements IConta {
     // Função para formatar o tipo da conta antes de salvar
     private static String formatarTipoConta(Conta conta) {
         if (conta instanceof ContaCorrente) {
-            return "Corrente";  // Para ContaCorrente, salvamos como "Corrente"
+            return "Corrente";
         } else if (conta instanceof ContaPoupanca) {
-            return "Poupança";  // Para ContaPoupanca, salvamos como "Poupança"
+            return "Poupança";
         }
-        return "Desconhecido";  // Caso o tipo não seja reconhecido, retorna "Desconhecido"
+        return "Desconhecido";
     }
 
     public static class ContaAdapter implements JsonSerializer<Conta>, JsonDeserializer<Conta> {
 
-    @Override
-    public JsonElement serialize(Conta src, Type typeOfSrc, JsonSerializationContext context) {
-        JsonObject jsonObject = new JsonObject();
+        @Override
+        public JsonElement serialize(Conta src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject jsonObject = new JsonObject();
 
-        // Serializar campos simples
-        jsonObject.addProperty("agencia", src.getAgencia());
-        jsonObject.addProperty("numero", src.getNumero());
-        jsonObject.addProperty("saldo", src.getSaldo());
+            // Serializar os campos básicos
+            jsonObject.addProperty("agencia", src.getAgencia());
+            jsonObject.addProperty("numero", src.getNumero());
+            jsonObject.addProperty("saldo", src.getSaldo()); // Certifique-se de incluir o saldo aqui
 
-        // Serializar o tipo usando a função formatarTipoConta
-        jsonObject.addProperty("tipo", formatarTipoConta(src));  // Aqui estamos formatando diretamente o campo "tipo"
+            // Serializar o tipo e o cliente
+            jsonObject.addProperty("tipo", formatarTipoConta(src));
+            jsonObject.add("cliente", context.serialize(src.getCliente()));
 
-        // Serializar o cliente
-        jsonObject.add("cliente", context.serialize(src.getCliente()));
+            // Serializar o histórico
+            jsonObject.addProperty("historico", src.imprimirHistorico());
 
-        // Serializar o histórico
-        jsonObject.addProperty("historico", src.imprimirHistorico());
+            // Serializar movimentações
+            JsonArray movimentacoesArray = new JsonArray();
+            for (Movimentacao mov : src.movimentacoes) {
+                JsonObject movimentacaoObject = new JsonObject();
+                movimentacaoObject.addProperty("tipo", mov.tipo);
+                movimentacaoObject.addProperty("valor", mov.valor);
+                movimentacaoObject.add("data", context.serialize(mov.data));
+                movimentacoesArray.add(movimentacaoObject);
+            }
+            jsonObject.add("movimentacoes", movimentacoesArray);
 
-        // Serializar movimentações
-        JsonArray movimentacoesArray = new JsonArray();
-        for (Movimentacao mov : src.movimentacoes) {
-            JsonObject movimentacaoObject = new JsonObject();
-            movimentacaoObject.addProperty("tipo", mov.tipo);
-            movimentacaoObject.addProperty("valor", mov.valor);
-            movimentacaoObject.add("data", context.serialize(mov.data));
-            movimentacoesArray.add(movimentacaoObject);
+            return jsonObject;
         }
-        jsonObject.add("movimentacoes", movimentacoesArray);
 
-        return jsonObject;
+        @Override
+        public Conta deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject jsonObject = json.getAsJsonObject();
+
+            // Deserializar os campos básicos
+            double saldo = jsonObject.get("saldo").getAsDouble(); // Recuperar o saldo
+            Cliente cliente = context.deserialize(jsonObject.get("cliente"), Cliente.class);
+            String historico = jsonObject.get("historico").getAsString();
+
+            // Verificar o tipo de conta
+            String tipo = jsonObject.get("tipo").getAsString();
+            Conta conta;
+            if ("Corrente".equals(tipo)) {
+                conta = new ContaCorrente(cliente);
+            } else if ("Poupança".equals(tipo)) {
+                conta = new ContaPoupanca(cliente);
+            } else {
+                throw new JsonParseException("Tipo de conta inválido: " + tipo);
+            }
+
+            // Configurar o saldo e histórico
+            conta.saldo = saldo; // Aplicar o saldo carregado do JSON
+            conta.historico = historico;
+
+            // Deserializar movimentações
+            JsonArray movimentacoesArray = jsonObject.getAsJsonArray("movimentacoes");
+            for (JsonElement element : movimentacoesArray) {
+                JsonObject movObject = element.getAsJsonObject();
+                String tipoMov = movObject.get("tipo").getAsString();
+                double valor = movObject.get("valor").getAsDouble();
+                Date data = context.deserialize(movObject.get("data"), Date.class);
+
+                conta.movimentacoes.add(new Movimentacao(tipoMov, valor, data));
+            }
+
+            return conta;
+        }
+
     }
-
-    @Override
-    public Conta deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        JsonObject jsonObject = json.getAsJsonObject();
-
-        // Deserializar os campos básicos
-        double saldo = jsonObject.get("saldo").getAsDouble();
-        Cliente cliente = context.deserialize(jsonObject.get("cliente"), Cliente.class);
-        String historico = jsonObject.get("historico").getAsString();
-
-        // Verificar se a chave "tipo" existe e não é nula
-        String tipo = jsonObject.has("tipo") ? jsonObject.get("tipo").getAsString() : null;
-        if (tipo == null) {
-            throw new JsonParseException("Campo 'tipo' ausente ou nulo no JSON.");
-        }
-
-        // Instanciar a conta conforme o tipo
-        Conta conta;
-        if ("Corrente".equals(tipo)) {
-            conta = new ContaCorrente(cliente);  // Conta Corrente
-        } else if ("Poupança".equals(tipo)) {
-            conta = new ContaPoupanca(cliente);  // Conta Poupança
-        } else {
-            throw new JsonParseException("Tipo de conta inválido: " + tipo);
-        }
-
-        // Configurar o restante dos campos
-        conta.saldo = saldo;
-        conta.historico = historico;
-
-        // Deserializar movimentações
-        JsonArray movimentacoesArray = jsonObject.getAsJsonArray("movimentacoes");
-        for (JsonElement element : movimentacoesArray) {
-            JsonObject movObject = element.getAsJsonObject();
-            String tipoMov = movObject.get("tipo").getAsString();
-            double valor = movObject.get("valor").getAsDouble();
-            conta.registrarMovimentacao(tipoMov, valor);
-        }
-
-        return conta;
-    }
-}
 
 }

@@ -65,7 +65,7 @@ public class ContaPoupanca extends Conta {
 
     @Override
     public void imprimirExtrato() {
-        String mensagem = "=== Extrato Conta Corrente ===\n"
+        String mensagem = "=== Extrato Conta Poupança ===\n"
                 + super.imprimirInfos()
                 + super.imprimirHistorico();
 
