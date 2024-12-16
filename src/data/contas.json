@@ -1,100 +1,50 @@
 [
   {
     "taxaDeSaque": 0.3,
-    "taxaDeTransferencia": 0.87,
     "LIMITE": 5000.0,
+    "taxaDeTransferencia": 0.87,
     "formatoData": "dd/MM/yyyy HH:mm:ss",
     "agencia": 1,
     "numero": 1,
-    "saldo": 15.7,
+    "saldo": 19.13,
     "tipo": "Corrente",
     "cliente": {
-      "nome": "Júlia",
+      "nome": "Júlia Meneses",
       "CPF": "111.111.111-11"
     },
-    "historico": "\n10/12/2024 01:38:24: Depósito de R$10,00\n10/12/2024 01:38:32: Saque de R$2,00\n10/12/2024 01:38:32: Taxa de saque: R$0,30 de R$0,30\n10/12/2024 01:38:32: Transferência para conta 2 de R$2,00\n10/12/2024 01:58:05: Depósito de R$10,00\n10/12/2024 01:58:10: Taxa de transferência 2 de R$0,30\n10/12/2024 01:58:10: O Saque abaixo representa o valor tranferido + taxa de tranferência: de R$2,30\n10/12/2024 01:58:10: Saque de R$2,30\n10/12/2024 01:58:10: Transferência realizada para conta 2 de R$2,00",
+    "historico": "\n16/12/2024 02:32:53: Depósito de R$30,00\n16/12/2024 02:33:05: Transferência para conta 2 de R$10,00",
     "movimentacoes": [
       {
         "tipo": "Depósito",
-        "valor": 10.0,
-        "data": "10/12/2024 01:38:24"
-      },
-      {
-        "tipo": "Saque",
-        "valor": 2.0,
-        "data": "10/12/2024 01:38:32"
-      },
-      {
-        "tipo": "Taxa de saque: R$0,30",
-        "valor": 0.3,
-        "data": "10/12/2024 01:38:32"
+        "valor": 30.0,
+        "data": "16/12/2024 02:32:53"
       },
       {
         "tipo": "Transferência para conta 2",
-        "valor": 2.0,
-        "data": "10/12/2024 01:38:32"
-      },
-      {
-        "tipo": "Depósito",
         "valor": 10.0,
-        "data": "10/12/2024 01:58:05"
-      },
-      {
-        "tipo": "Taxa de transferência 2",
-        "valor": 0.3,
-        "data": "10/12/2024 01:58:10"
-      },
-      {
-        "tipo": "O Saque abaixo representa o valor tranferido + taxa de tranferência:",
-        "valor": 2.3,
-        "data": "10/12/2024 01:58:10"
-      },
-      {
-        "tipo": "Saque",
-        "valor": 2.3,
-        "data": "10/12/2024 01:58:10"
-      },
-      {
-        "tipo": "Transferência realizada para conta 2",
-        "valor": 2.0,
-        "data": "10/12/2024 01:58:10"
+        "data": "16/12/2024 02:33:05"
       }
     ]
   },
   {
     "taxaDeSaque": 0.3,
-    "taxaDeTransferencia": 0.87,
     "LIMITE": 5000.0,
+    "taxaDeTransferencia": 0.87,
     "formatoData": "dd/MM/yyyy HH:mm:ss",
     "agencia": 1,
     "numero": 2,
-    "saldo": 3.13,
+    "saldo": 10.0,
     "tipo": "Corrente",
     "cliente": {
-      "nome": "João",
+      "nome": "João Vinicius",
       "CPF": "222.222.222-22"
     },
-    "historico": "\n10/12/2024 01:38:32: Depósito de R$1,13\n10/12/2024 01:38:32: Transferência recebida de conta 1 de R$2,00\n10/12/2024 01:58:10: Depósito de R$2,00\n10/12/2024 01:58:10: Transferência recebida de conta 1 de R$2,00",
+    "historico": "\n16/12/2024 02:33:05: Transferência recebida de conta 1 de R$10,00",
     "movimentacoes": [
       {
-        "tipo": "Depósito",
-        "valor": 1.13,
-        "data": "10/12/2024 01:38:32"
-      },
-      {
         "tipo": "Transferência recebida de conta 1",
-        "valor": 2.0,
-        "data": "10/12/2024 01:38:32"
-      },
-      {
-        "tipo": "Depósito",
-        "valor": 2.0,
-        "data": "10/12/2024 01:58:10"
-      },
-      {
-        "tipo": "Transferência recebida de conta 1",
-        "valor": 2.0,
-        "data": "10/12/2024 01:58:10"
+        "valor": 10.0,
+        "data": "16/12/2024 02:33:05"
       }
     ]
   }

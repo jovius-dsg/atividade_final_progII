@@ -19,13 +19,13 @@ public class ContaCorrente extends Conta {
     /*A Corrente poosui taxa na hora de sacar 
         e de transferir para outra conta do tipo corrente
      */
-    private double taxaDeSaque = 0.30;
-    private double taxaDeTransferencia = 0.87;
+    private final double taxaDeSaque = 0.30;
 
     public ContaCorrente(Cliente cliente) {
         super(cliente);
     }
 
+    @Override
     public void sacar(double valor) {
         ImageIcon icon = new ImageIcon("C:\\Users\\joaov\\Documents\\NetBeansProjects\\GNBVersaoFinal\\src\\JFrame\\mensage-icon.png");
         try {
@@ -53,19 +53,9 @@ public class ContaCorrente extends Conta {
                 if (super.getSaldo() < valor + taxaDeTransferencia) {
                     throw new ContaException("A operação não pode ser feita, o saldo não cobre a taxa de operação!");
                 }
+                
+                super.transferir(valor, contaDestino);
 
-                // Registra a taxa de transferência no histórico da conta de origem
-                super.registrarMovimentacao(String.format("Taxa de transferência %d", contaDestino.getNumero()), taxaDeSaque);
-                super.registrarMovimentacao(String.format("O Saque abaixo representa o valor tranferido + taxa de tranferência", contaDestino.getNumero()), (taxaDeSaque + valor));
-                // Realiza o saque na conta de origem com a taxa de operação
-                super.sacar(valor + taxaDeSaque);
-                super.registrarMovimentacao(String.format("Transferência realizada para conta %d", contaDestino.getNumero()), valor);
-
-                // Realiza o depósito na conta de destino com a taxa de transferência aplicada
-                contaDestino.depositar(valor);
-
-                // Registra a transferência no histórico da conta de destino
-                contaDestino.registrarMovimentacao(String.format("Transferência recebida de conta %d", super.getNumero()), valor);
 
             } else {
                 // Para contas que não são "Corrente", realiza a transferência normalmente

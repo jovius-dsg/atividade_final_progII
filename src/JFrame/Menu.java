@@ -20,13 +20,13 @@ public class Menu extends javax.swing.JFrame {
     public Menu() {
         initComponents();
         this.addWindowListener(new java.awt.event.WindowAdapter() {
-        @Override
-        public void windowClosing(java.awt.event.WindowEvent e) {
-            CRUD.salvarContasJson(); // Salva os dados antes de fechar
-            JOptionPane.showMessageDialog(null, "Os dados foram salvos com sucesso.", "GNB", JOptionPane.INFORMATION_MESSAGE);
-            System.exit(0); // Encerra o programa
-        }
-    });
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                CRUD.salvarContasJson(); // Salva os dados antes de fechar
+                JOptionPane.showMessageDialog(null, "Os dados foram salvos com sucesso.", "GNB", JOptionPane.INFORMATION_MESSAGE);
+                System.exit(0); // Encerra o programa
+            }
+        });
     }
 
     /**
@@ -154,12 +154,12 @@ public class Menu extends javax.swing.JFrame {
         do {
             try {
                 c = JOptionPane.showInputDialog(null, "Digite o número da conta: ");
-                
+
                 if (c == null) {
-                JOptionPane.showMessageDialog(null, "Operação cancelada.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
-                return;
+                    JOptionPane.showMessageDialog(null, "Operação cancelada.", "GNB", JOptionPane.INFORMATION_MESSAGE, icon);
+                    return;
                 }
-                
+
                 numero = Integer.parseInt(c);
                 repete = false;
             } catch (Exception e) {
@@ -196,28 +196,9 @@ public class Menu extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-//        Cliente cliente = new Cliente();
-//        Cliente cliente2 = new Cliente();
-//        Cliente cliente3 = new Cliente();
-//
-//        cliente.setNome("Venilton");
-//        cliente.setCPF("123.456.778-99");
-//        Conta conta1 = new ContaCorrente(cliente);
-//
-//        cliente2.setNome("José");
-//        cliente2.setCPF("987.654.321-32");
-//        Conta conta2 = new ContaPoupanca(cliente2);
-//
-//        cliente3.setNome("Paulo");
-//        cliente3.setCPF("123.789.654-11");
-//        Conta conta3 = new ContaCorrente(cliente3);
-//
-//        CRUD.listaContas.add(conta1);
-//        CRUD.listaContas.add(conta2);
-//        CRUD.listaContas.add(conta3);;
 
-          garantirArquivoExistente();
-          carregarContasJson();
+        garantirArquivoExistente();
+        carregarContasJson();
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

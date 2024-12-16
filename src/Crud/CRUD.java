@@ -35,6 +35,7 @@ public class CRUD {
                 if (arquivo.createNewFile()) {
                     try (FileWriter writer = new FileWriter(arquivo)) {
                         writer.write("[]"); // Inicializa com uma lista vazia
+                        
                     }
                     System.out.println("Arquivo 'contas.json' criado com sucesso.");
                 }

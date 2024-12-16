@@ -1,6 +1,5 @@
 package ContaSrc;
 
-import ContaSrc.IConta;
 import com.google.gson.*;
 import java.lang.reflect.Type;
 import java.text.ParseException;
@@ -13,6 +12,7 @@ public abstract class Conta implements IConta {
 
     private static final int AGENCIA_PADRAO = 1;
     private final double LIMITE = 5000;
+    final double taxaDeTransferencia = 0.87;
     private static int SEQUENCIAL = 1;
     private final SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -55,7 +55,11 @@ public abstract class Conta implements IConta {
         // Atualizar os saldos diretamente
         saldo -= valor;
         contaDestino.saldo += valor;
-
+        
+        if ("Corrente".equals(contaDestino.tipo())){
+        saldo -= taxaDeTransferencia;
+        }
+        
         // Registrar a transferência apenas uma vez
         registrarMovimentacao(String.format("Transferência para conta %d", contaDestino.getNumero()), valor);
         contaDestino.registrarMovimentacao(String.format("Transferência recebida de conta %d", this.numero), valor);
@@ -137,7 +141,7 @@ public abstract class Conta implements IConta {
                 + "\nAgência: " + this.agencia
                 + "\nNúmero: " + this.numero
                 + "\nTipo: " + tipo()
-                + String.format("\nSaldo: %.2f", this.saldo);
+                + String.format("\nSaldo: R$ %.2f", this.saldo);
     }
 
     public String imprimirHistorico() {
